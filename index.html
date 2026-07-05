@@ -19,7 +19,7 @@
                 </select>
                 <br>
                 <label for="input-word" >Introdu un cuvant (optional):</label>
-                <input type="password" id="input-word" placeholder="Cuvantul tau
+                <input type="password" id="input-word" placeholder="Cuvantul tau">
                 <br>
                 <label for="category">Alege categoria:</label>
                 <select id="category">
@@ -30,6 +30,15 @@
                 <br>
                 <button id="start-game">Incepe jocul</button>         
             </div>
+            <div class="game-container hidden">
+                <h2>Jocul a inceput!</h2>
+                <img id="hangman-image" src="images/*hangman0.png" alt="Hangman Image">
+                <p id="word-display">Cuvantul: </p>
+                <p id="lives-display">Vieti ramase: </p>
+                <p>Litere gresite: <span id="wrong-letters"></span></p>
+                <p id="game-message"></p>
+                <div id="letter-buttons"></div>
+                <button id="restart-game">Reincepe jocul</button>
         </div>
         
         

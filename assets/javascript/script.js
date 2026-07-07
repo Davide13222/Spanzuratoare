@@ -29,13 +29,19 @@ restartButton.addEventListener("click", function () {
 
 function genereazaTastatura() {
     
+    const letterButtonsContainer = document.getElementById("letter-buttons");
     letterButtonsContainer.innerHTML = ""; 
+    const taste = [
+        "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", // 10 taste
+        "A", "S", "D", "F", "G", "H", "J", "K", "L",      // 9 taste
+        "Z", "X", "C", "V", "B", "N", "M",                // 7 taste
+        "Ă", "Â", "Î", "Ș", "Ț", "-",                     // 6 taste (diacritice + cratimă)
+        "Spațiu"                                          // 1 tastă extra-lată
+    ];
 
-    const alfabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    for (let i = 0; i < alfabet.length; i++) {
+    for (let i = 0; i < taste.length; i++) {
         const buton = document.createElement("button");
-        buton.textContent = alfabet[i];
+        buton.textContent = taste[i];
         buton.classList.add("letter-btn");  
 
         buton.addEventListener("click", function () {

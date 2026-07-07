@@ -52,6 +52,13 @@ h2 {
     color: #c9c3b6;
 }
 
+#error-message {
+    color: #d97757;
+    font-weight: bold;
+    margin-top: 8px;
+    min-height: 20px;
+}
+
 .game-settings select,
 .game-settings input {
     width: 100%;

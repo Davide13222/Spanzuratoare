@@ -8,7 +8,7 @@ const letterButtonsContainer = document.getElementById("letter-buttons");
 
 let secretWord = "animale";
 
-function afiseazaCuvant() {
+function showWord() {
     let liniute = "";
     for (let i = 0; i < secretWord.length; i++) {
         liniute += "_ ";
@@ -19,7 +19,7 @@ function afiseazaCuvant() {
 startButton.addEventListener("click", function () {
     gameSettings.classList.add("hidden");
     gameContainer.classList.remove("hidden");
-    afiseazaCuvant();
+    showWord();
 });
 
 restartButton.addEventListener("click", function () {
@@ -27,21 +27,21 @@ restartButton.addEventListener("click", function () {
     gameSettings.classList.remove("hidden");
 });
 
-function genereazaTastatura() {
+function generateKeyboard() {
     
     const letterButtonsContainer = document.getElementById("letter-buttons");
     letterButtonsContainer.innerHTML = ""; 
-    const taste = [
-        "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", // 10 taste
-        "A", "S", "D", "F", "G", "H", "J", "K", "L",      // 9 taste
-        "Z", "X", "C", "V", "B", "N", "M",                // 7 taste
-        "Ă", "Â", "Î", "Ș", "Ț", "-",                     // 6 taste (diacritice + cratimă)
-        "Spațiu"                                          // 1 tastă extra-lată
+    const keys = [
+        "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", // 10 keys
+        "A", "S", "D", "F", "G", "H", "J", "K", "L",      // 9 keys
+        "Z", "X", "C", "V", "B", "N", "M",                // 7 keys
+        "Ă", "Â", "Î", "Ș", "Ț", "-",                     // 6 keys (diacritics + hyphen)
+        "Spațiu"                                          // 1 key extra-wide
     ];
 
-    for (let i = 0; i < taste.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
         const buton = document.createElement("button");
-        buton.textContent = taste[i];
+        buton.textContent = keys[i];
         buton.classList.add("letter-btn");  
 
         buton.addEventListener("click", function () {
@@ -55,8 +55,8 @@ function genereazaTastatura() {
 startButton.addEventListener("click", function () {
     gameSettings.classList.add("hidden");
     gameContainer.classList.remove("hidden");
-    afiseazaCuvant();
-    genereazaTastatura(); 
+    showWord();
+    generateKeyboard(); 
 });
 
 restartButton.addEventListener("click", function () {

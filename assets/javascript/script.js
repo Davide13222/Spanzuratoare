@@ -12,136 +12,136 @@ const categorySelect = document.getElementById("category");
 const inputWord = document.getElementById("input-word");
 const errorMessage = document.getElementById("error-message");
 
-let cuvantSetat = "";
-let ultimulCuvantRandom = "";
+let wordSet = "";
+let lastRandomWord = "";
 
 let secretWord = "";
-let viataRamasa = 0;
-let litereGhicite = [];
-let litereGresite = [];
+let livesRemaining = 0;
+let lettersGuessed = [];
+let wrongLetters = [];
 
-const cuvinte = {
+const words = {
     animals: ["pisica", "caine", "elefant", "girafa", "tigru"],
     fruits: ["mar", "para", "banana", "portocala", "cirese"],
     countries: ["romania", "franta", "italia", "spania", "germania"]
 };
 
-const reguliDificultate = {
-    easy: { maxLitere: 7, maxGreseli: 10 },
-    medium: { minLitere: 7, maxLitere: 10, maxGreseli: 8 },
-    hard: { minLitere: 10, maxGreseli: 6 }
+const difficultyRules = {
+    easy: { maxKeys: 7, maxWrongGuesses: 10 },
+    medium: { minLetters: 7, maxLetters: 10, maxWrongGuesses: 8 },
+    hard: { minLetters: 10, maxWrongGuesses: 6 }
 };
 
 difficultySelect.addEventListener("change", function () {
-    const setari = reguliDificultate[difficultySelect.value];
+    const setari = difficultyRules[difficultySelect.value];
     console.log(setari);
 });
 
-function esteCuvantValid(cuvant) {
-    const regex = /^[a-zA-ZăâîșțĂÂÎȘȚ ]+$/;
-    return regex.test(cuvant);
+function isWordValid(word) {
+    const regex = /^[a-zA-ZăâîșțĂÂÎȘȚ \-]+$/;
+    return regex.test(word);
 }
 
-function verificaLungime(cuvant) {
-    const reguli = reguliDificultate[difficultySelect.value];
-    const lungime = cuvant.length;
+function checkWordLength(word) {
+    const rules = difficultyRules[difficultySelect.value];
+    const length = word.length;
 
-    if (reguli.maxLitere && lungime > reguli.maxLitere) {
-        return "Cuvantul are prea multe litere! Maxim " + reguli.maxLitere + ".";
+    if (rules.maxLetters && length > rules.maxLetters) {
+        return "Cuvantul are prea multe litere! Maxim " + rules.maxLetters + ".";
     }
-    if (reguli.minLitere && lungime < reguli.minLitere) {
-        return "Cuvantul are prea putine litere! Minim " + reguli.minLitere + ".";
+    if (rules.minLetters && length < rules.minLetters) {
+        return "Cuvantul are prea putine litere! Minim " + rules.minLetters + ".";
     }
     return "";
 }
 
-function valideazaCuvantIntrodus() {
-    const cuvant = inputWord.value.trim();
+function validateInputWord() {
+    const word = inputWord.value.trim();
 
-    if (cuvant === "") {
+    if (word === "") {
         errorMessage.textContent = "";
-        cuvantSetat = "";
+        wordSet = "";
         return true;
     }
 
-    if (!esteCuvantValid(cuvant)) {
+    if (!isWordValid(word)) {
         errorMessage.textContent = "Foloseste doar litere!";
         return false;
     }
 
-    const eroareLungime = verificaLungime(cuvant);
-    if (eroareLungime !== "") {
-        errorMessage.textContent = eroareLungime;
+    const errorLength = checkWordLength(word);
+    if (errorLength !== "") {
+        errorMessage.textContent = errorLength;
         return false;
     }
 
     errorMessage.textContent = "";
-    cuvantSetat = cuvant.toLowerCase();
+    wordSet = word.toLowerCase();
     return true;
 }
 
-function alegeCuvant() {
-    const categorie = categorySelect.value;
+function chooseWord() {
+    const category = categorySelect.value;
 
-    if (cuvantSetat !== "") {
-        return cuvantSetat;
+    if (wordSet !== "") {
+        return wordSet;
     }
 
-    const listaCuvinte = cuvinte[categorie];
-    const index = Math.floor(Math.random() * listaCuvinte.length);
-    return listaCuvinte[index];
+    const wordsList = words[category];
+    const index = Math.floor(Math.random() * wordsList.length);
+    return wordsList[index];
 }
 
-function initializeazaJocul() {
-    const cuvantValid = valideazaCuvantIntrodus();
-    if (!cuvantValid) {
+function initializeGame() {
+    const wordValid = validateInputWord();
+    if (!wordValid) {
         return false;
     }
 
-    const cuvantAles = alegeCuvant();
-    if (cuvantAles === null) {
+    const wordChosen = chooseWord();
+    if (wordChosen === null) {
         return false;
     }
 
-    secretWord = cuvantAles;
-    viataRamasa = reguliDificultate[difficultySelect.value].maxGreseli;
-    litereGhicite = [];
-    litereGresite = [];
-    livesDisplay.textContent = "Vieti ramase: " + viataRamasa;
+    secretWord = wordChosen;
+    livesRemaining = difficultyRules[difficultySelect.value].maxWrongGuesses;
+    lettersGuessed = [];
+    wrongLetters = [];
+    livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
     return true;
 }
 
 function showWord() {
-    let liniute = "";
+    let underScore = "";
     for (let i = 0; i < secretWord.length; i++) {
         if (secretWord[i] === " ") {
-            liniute += "&nbsp;&nbsp;&nbsp;";
-        } else if (litereGhicite.includes(secretWord[i])) {
-            liniute += secretWord[i].toUpperCase() + " ";
+            underScore += "&nbsp;";
+        } else if (lettersGuessed.includes(secretWord[i])) {
+            underScore += secretWord[i].toUpperCase() + " ";
         } else {
-            liniute += "_ ";
+            underScore += "_ ";
         }
     }
-    wordDisplay.innerHTML = liniute;
+    wordDisplay.innerHTML = underScore;
 }
 
-function cuvantulEsteComplet() {
+function wordIsComplete() {
     for (let i = 0; i < secretWord.length; i++) {
-        if (secretWord[i] !== " " && !litereGhicite.includes(secretWord[i])) {
+        if (secretWord[i] !== " " && !lettersGuessed.includes(secretWord[i])) {
             return false;
         }
     }
     return true;
 }
 
-function terminaJocul(aCastigat) {
+function endGame(hasWon) {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");
 
     const finalMessage = document.getElementById("final-message");
 
-    if (aCastigat) {
+    if (hasWon) {
         finalMessage.textContent = "Felicitari, ai castigat! Cuvantul era: " + secretWord;
     } else {
         finalMessage.textContent = "Ai pierdut! Cuvantul era: " + secretWord;
@@ -157,31 +157,31 @@ function dezactiveazaTasta(litera) {
     }
 }
 
-function proceseazaLitera(litera) {
-    litera = litera.toLowerCase();
+function processKey(letter) {
+    letter = letter.toLowerCase();
 
-    dezactiveazaTasta(litera);
+    dezactiveazaTasta(letter);
 
-    if (secretWord.includes(litera)) {
-        if (!litereGhicite.includes(litera)) {
-            litereGhicite.push(litera);
+    if (secretWord.includes(letter)) {
+        if (!lettersGuessed.includes(letter)) {
+            lettersGuessed.push(letter);
         }
         showWord();
 
-        if (cuvantulEsteComplet()) {
-            terminaJocul(true);
+        if (wordIsComplete()) {
+            endGame(true);
         }
     } else {
-        if (!litereGresite.includes(litera)) {
-            litereGresite.push(litera);
-            viataRamasa--;
+        if (!wrongLetters.includes(letter)) {
+            wrongLetters.push(letter);
+            livesRemaining--;
         }
 
-        document.getElementById("wrong-letters").textContent = litereGresite.join(", ").toUpperCase();
-        livesDisplay.textContent = "Vieti ramase: " + viataRamasa;
+        document.getElementById("wrong-letters").textContent = wrongLetters.join(", ").toUpperCase();
+        livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
-        if (viataRamasa === 0) {
-            terminaJocul(false);
+        if (livesRemaining === 0) {
+            endGame(false);
         }
     }
 }
@@ -191,24 +191,24 @@ document.addEventListener("keydown", function (event) {
         return;
     }
 
-    const regexLitera = /^[a-zA-Z]$/;
+    const regexWord = /^[a-zA-Z]$/;
 
-    if (!regexLitera.test(event.key)) {
+    if (!regexWord.test(event.key)) {
         gameMessage.textContent = "se accepta doar litere";
         return;
     }
 
     gameMessage.textContent = "";
-    proceseazaLitera(event.key.toUpperCase());
+    processKey(event.key.toUpperCase());
 });
 
 function generateKeyboard() {
     letterButtonsContainer.innerHTML = "";
-    const keys = [
-        "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P",
-        "A", "S", "D", "F", "G", "H", "J", "K", "L",
-        "Z", "X", "C", "V", "B", "N", "M",
-        "Ă", "Â", "Î", "Ș", "Ț"
+     const keys = [
+        "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", 
+        "A", "S", "D", "F", "G", "H", "J", "K", "L",      
+        "Z", "X", "C", "V", "B", "N", "M",                
+        "Ă", "Â", "Î", "Ș", "Ț", "-",                                                              
     ];
 
     for (let i = 0; i < keys.length; i++) {
@@ -218,7 +218,7 @@ function generateKeyboard() {
 
         buton.addEventListener("click", function () {
             buton.disabled = true;
-            proceseazaLitera(keys[i]);
+            processKey(keys[i]);
         });
 
         letterButtonsContainer.appendChild(buton);
@@ -226,8 +226,8 @@ function generateKeyboard() {
 }
 
 startButton.addEventListener("click", function () {
-    const jocInitializat = initializeazaJocul();
-    if (!jocInitializat) {
+    const gameInitialized = initializeGame();
+    if (!gameInitialized) {
         return;
     }
 

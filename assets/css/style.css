@@ -119,11 +119,28 @@ button {
     text-align: center;
 }
 
-#hangman-canvas {
-    width: 220px;
+.hangman-img {
+    display: block;
+    width: 200px;
     height: 220px;
     margin: 15px auto;
-    border: 2px dashed red;
+}
+
+/* Wrong letters animation - screen shake effect */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-8px); }
+    20% { transform: translateX(8px); }
+    30% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    50% { transform: translateX(-4px); }
+    60% { transform: translateX(4px); }
+    70% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+
+.shake {
+    animation: shake 1s ease-in-out;
 }
 
 #word-display {

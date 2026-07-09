@@ -29,7 +29,7 @@ const words = {
 };
 
 const difficultyRules = {
-    easy: { maxKeys: 7, maxWrongGuesses: 10 },
+    easy: { maxLetters: 7, maxWrongGuesses: 10 },
     medium: { minLetters: 7, maxLetters: 10, maxWrongGuesses: 8 },
     hard: { minLetters: 10, maxWrongGuesses: 6 }
 };
@@ -67,7 +67,7 @@ function validateInputWord() {
     }
 
     if (!isWordValid(word)) {
-        errorMessage.textContent = "Foloseste doar litere!";
+        errorMessage.textContent = "Foloseste doar litere si cratime!";
         return false;
     }
 
@@ -99,7 +99,7 @@ function updateHangmanImage(stage) {
     const currentStage = Math.min(stage, totalStages);
     hangmanImage.src = "assets/images/" + currentStage + ".svg";
 
-    //Remove and re-add pop class to retrigger animation
+    // Remove and re-add pop class to retrigger animation
     hangmanImage.classList.remove("hangman-pop");
     void hangmanImage.offsetWidth; //force reflow
     hangmanImage.classList.add("hangman-pop");
@@ -125,7 +125,7 @@ function initializeGame() {
     document.getElementById("wrong-letters").textContent = "";
     gameMessage.textContent = "";
 
-    //Reset hangman to stage 0
+    // Reset hangman to stage 0
     updateHangmanImage(0);
 
     return true;
@@ -162,18 +162,18 @@ function triggerWrongAnimation() {
     void hangmanImage.offsetWidth; //force reflow
     hangmanImage.classList.add("hangman-wrong");
 
-    //Shake the whole game container lightly
+    // Shake the whole game container lightly
     gameContainer.classList.remove("shake");
     void gameContainer.offsetWidth; //force reflow
     gameContainer.classList.add("shake");
 
     // Flash the lives display red
     livesDisplay.style.color = "red";
-    setTimeout(function(){
+    setTimeout(function () {
         livesDisplay.style.color = "orange";
     }, 1000);
 
-    //Show message
+    // Show message
     gameMessage.classList.remove("message-flash");
     void gameMessage.offsetWidth; //force reflow
     gameMessage.classList.add("message-flash");
@@ -188,13 +188,13 @@ function triggerCorrectAnimation() {
 
     // Brief green border glow on hangman image
     hangmanImage.style.filter = "drop-shadow(0 0 8px green)";
-    setTimeout(function(){
+    setTimeout(function () {
         hangmanImage.style.filter = "";
     }, 500);
 
     gameMessage.textContent = "Corect!";
     gameMessage.style.color = "green"; 
-    setTimeout(function(){
+    setTimeout(function () {
         gameMessage.textContent = "";
         gameMessage.style.color = "orange";
     }, 1200);
@@ -235,7 +235,7 @@ function spawnConfetti() {
 
         document.body.appendChild(piece);
 
-        //Remove after animation ends
+        // Remove after animation ends
         setTimeout(function () {
             if (piece.parentNode) {
                 piece.parentNode.removeChild(piece);
@@ -248,27 +248,27 @@ function triggerWinAnimation() {
     // Confetti rain
     spawnConfetti();
 
-    //Hangman image celebration bounce
+    // Hangman image celebration bounce
     hangmanImage.classList.remove("win-celebration");
     void hangmanImage.offsetWidth; //force reflow
     hangmanImage.classList.add("win-celebration");
 
-    //Flash the game container border gold
+    // Flash the game container border gold
     gameContainer.style.border = "3px solid #e8b84b";
     gameContainer.style.boxShadow = "0 0 30px rgba(232, 184, 75, 0.5)";
-    setTimeout(function(){
+    setTimeout(function () {
         gameContainer.style.border = "2px solid #3d4453";
         gameContainer.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.4)";
     }, 2000);
 }
 
 function triggerLoseAnimation() {
-    //Red flash overlay on container
+    // Red flash overlay on container
     gameContainer.classList.remove("lose-flash");
     void gameContainer.offsetWidth; //force reflow
     gameContainer.classList.add("lose-flash");
 
-    //Hangman image skull bounce
+    // Hangman image skull bounce
     hangmanImage.classList.remove("hangman-dead");
     void hangmanImage.offsetWidth; //force reflow
     hangmanImage.classList.add("hangman-dead");
@@ -277,9 +277,9 @@ function triggerLoseAnimation() {
     gameMessage.style.color = "#d97757";
     gameMessage.classList.add("message-flash");
 
-    // Spawn a few red-toned conffeti pieces for dramatic effect
+    // Spawn a few red-toned confetti pieces for dramatic effect
     const redColors = ["#d97757", "#8B0000", "#FF4444", "#4a0000"];
-    for (let i= 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
         const piece = document.createElement("div");
         piece.classList.add("confetti-piece");
         piece.style.backgroundColor = redColors[Math.floor(Math.random() * redColors.length)];
@@ -314,7 +314,7 @@ function endGame(hasWon) {
         triggerLoseAnimation();
     }
 
-    //Short delay before showing game over screen so animations play
+    // Short delay before showing game over screen so animations play
     setTimeout(function () {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");
@@ -343,7 +343,7 @@ function deactivateKey(letter) {
 function processKey(letter) {
     letter = letter.toLowerCase();
 
-    //Already guessed? Skip
+    // Already guessed? Skip
     if (lettersGuessed.includes(letter) || wrongLetters.includes(letter)) {
         return;
     }
@@ -351,7 +351,7 @@ function processKey(letter) {
     deactivateKey(letter);
 
     if (secretWord.includes(letter)) {
-        //CORRECT GUESS
+        // CORRECT GUESS
         if (!lettersGuessed.includes(letter)) {
             lettersGuessed.push(letter);
         }
@@ -359,12 +359,11 @@ function processKey(letter) {
         showWord();
         triggerCorrectAnimation();
 
-
         if (wordIsComplete()) {
             endGame(true);
         }
     } else {
-        //WRONG GUESS
+        // WRONG GUESS
         if (!wrongLetters.includes(letter)) {
             wrongLetters.push(letter);
             livesRemaining--;
@@ -374,9 +373,9 @@ function processKey(letter) {
         document.getElementById("wrong-letters").textContent = wrongLetters.join(", ").toUpperCase();
         livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
-        //Update hangman image based on wrong guesses
+        // Update hangman image based on wrong guesses
         const wrongCount = wrongLetters.length;
-        //Scale to 6 stages
+        // Scale to 6 stages
         const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
         updateHangmanImage(stage);
 
@@ -395,12 +394,11 @@ document.addEventListener("keydown", function (event) {
 
     const regexWord = /^[a-zA-ZăâîșțĂÂÎȘȚ]$/;
 
-    //Normalize Romanian diacritics for keyboard input
+    // Normalize Romanian diacritics for keyboard input
     let key = event.key.toLowerCase();
     const diacriticsMap = {
         "ă": "a", "â": "a", "î": "i", "ș": "s", "ț": "t"
     };
-
 
     if (!regexWord.test(event.key) && !diacriticsMap[key]) {
         gameMessage.textContent = "Se accepta doar litere";
@@ -412,8 +410,8 @@ document.addEventListener("keydown", function (event) {
     gameMessage.style.color = "orange";
 
     // For keyboard input, map diacritics to their base letter for matching
-    // (the word may contain diacritics but keyboard is often without)
-    processKey(event.key.toUpperCase());
+    // (the word may contain diacritics but keyboard input is often without)
+    processKey(event.key.toLowerCase());
 });
 
 function generateKeyboard() {

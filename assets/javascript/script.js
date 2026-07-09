@@ -154,6 +154,29 @@ function wordIsComplete() {
     return true;
 }
 
+// Animation functions 
+function triggerWrongAnimation() {
+    // Shake the hangman image with red glow
+    hangmanImage.classList.remove("hangman-wrong");
+    void hangmanImage.offsetWidth; //force reflow
+    hangmanImage.classList.add("hangman-wrong");
+
+    //Shake the whole game container lightly
+    gameContainer.classList.remove("shake");
+    void gameContainer.offsetWidth; //force reflow
+    gameContainer.classList.add("shake");
+
+    // Flash the lives display red
+    livesDisplay.style.color = "red";
+    setTimeout(function(){
+        livesDisplay.style.color = "orange";
+    }, 1000);
+
+    //Show message
+    gameMessage.classList.remove("message-flash");
+    void gameMessage.offsetWidth; //force reflow
+    gameMessage.classList.add("message-flash");
+}
 function endGame(hasWon) {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");
@@ -167,6 +190,26 @@ function endGame(hasWon) {
     }
 }
 
+function triggerCorrectAnimation() {
+    // Green glow on the word display area
+    wordDisplay.classList.remove("word-bounce", "letter-correct");
+    void wordDisplay.offsetWidth; //force reflow
+    wordDisplay.classList.add("word-bounce");
+    wordDisplay.classList.add("letter-correct");
+
+    // Brief green border glow on hangman image
+    hangmanImage.style.filter = "drop-shadow(0 0 8px green)";
+    setTimeout(function(){
+        hangmanImage.style.filter = "";
+    }, 500);
+
+    gameMessage.textContent = "Corect!";
+    gameMessage.style.color = "green"; 
+    setTimeout(function(){
+        gameMessage.textContent = "";
+        gameMessage.style.color = "orange";
+    }, 1200);
+}
 function deactivateKey(letter) {
     const buttons = letterButtonsContainer.querySelectorAll("button");
     for (let i = 0; i < buttons.length; i++) {

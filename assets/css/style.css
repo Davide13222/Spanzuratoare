@@ -142,6 +142,17 @@ button {
 .shake {
     animation: shake 1s ease-in-out;
 }
+
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0); }
+    50% { box-shadow: 0 0 20px 8px rgba(217, 119, 87, 0.6); }
+}
+
+.hangman-wrong {
+    animation: shake 0.5s ease-in-out, pulse-red 0.5s ease-in-out;
+    filter: brightness(1.2) saturate(1.3);
+}
+
 /*Hangman image pop when stage advances */
 @keyframes pop-in {
     0% { transform: scale(1.1) rotate(-5deg);}
@@ -152,6 +163,15 @@ button {
 }
 .hangman-pop {
     animation: pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+/* Correct letter guessed - green glow */
+@keyframes glow-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    50% { box-shadow: 0 0 15px 6px rgba(46, 204, 113, 0.5); }
+}
+
+.letter-correct {
+    animation: glow-green 0.6s ease-in-out;
 }
 
 #word-display {

@@ -211,6 +211,29 @@ button {
 .win-celebration {
     animation: win-bounce 0.6s ease-in-out 3;
 }
+
+/* Lose animation */
+@keyframes fade-red {
+    0% { background-color: transparent; }
+    30% { background-color: rgba(217, 87, 87, 0.3); }
+    100% { background-color: transparent; }
+}
+
+@keyframes skull-bounce {
+    0% { transform: scale(1); opacity: 1; }
+    30% { transform: scale(1.4); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.lose-flash {
+    animation: fade-red 1s ease-out;
+}
+
+.hangman-dead {
+    animation: skull-bounce 0.6s ease-in-out;
+}
+
+
 #word-display {
     font-family: 'Courier New', monospace;
     font-size: 1.8rem;

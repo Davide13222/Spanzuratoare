@@ -262,6 +262,51 @@ function triggerWinAnimation() {
     }, 2000);
 }
 
+function triggerLoseAnimation() {
+    //Red flash overlay on container
+    gameContainer.classList.remove("lose-flash");
+    void gameContainer.offsetWidth; //force reflow
+    gameContainer.classList.add("lose-flash");
+
+    //Hangman image skull bounce
+    hangmanImage.classList.remove("hangman-dead");
+    void hangmanImage.offsetWidth; //force reflow
+    hangmanImage.classList.add("hangman-dead");
+
+    gameMessage.textContent = wompMessages[Math.floor(Math.random() * wompMessages.length)];
+    gameMessage.style.color = "#d97757";
+    gameMessage.classList.add("message-flash");
+
+    // Spawn a few red-toned conffeti pieces for dramatic effect
+    const redColors = ["#d97757", "#8B0000", "#FF4444", "#4a0000"];
+    for (let i= 0; i < 20; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("confetti-piece");
+        piece.style.backgroundColor = redColors[Math.floor(Math.random() * redColors.length)];
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.width = 8 + Math.random() * 10 + "px";
+        piece.style.height = 8 + Math.random() * 10 + "px";
+        piece.style.animationDelay = Math.random() * 1 + "s";
+        piece.style.animationDuration = 2 + Math.random() * 1.5 + "s";
+        document.body.appendChild(piece);
+        setTimeout(function () {
+            if (piece.parentNode) {
+                piece.parentNode.removeChild(piece);
+            }
+        }, 4000)
+    }
+
+}
+
+const wompMessages = [
+    "Womp womp...",
+    "Ai pierdut!",
+    "Ghinion!",
+    "Data viitoare!",
+    "Offf...",
+    "Nu-i nimic, mai incearca!",
+];
+
 function endGame(hasWon) {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");

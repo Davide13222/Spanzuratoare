@@ -308,6 +308,14 @@ const wompMessages = [
 ];
 
 function endGame(hasWon) {
+    if (hasWon) {
+        triggerWinAnimation();
+    } else {
+        triggerLoseAnimation();
+    }
+
+    //Short delay before showing game over screen so animations play
+    setTimeout(function () {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");
 
@@ -315,9 +323,12 @@ function endGame(hasWon) {
 
     if (hasWon) {
         finalMessage.textContent = "Felicitari, ai castigat! Cuvantul era: " + secretWord;
+        finalMessage.style.color = "green";
     } else {
         finalMessage.textContent = "Ai pierdut! Cuvantul era: " + secretWord;
+        finalMessage.style.color = "red";
     }
+    }, 800);
 }
 
 function deactivateKey(letter) {
@@ -332,25 +343,44 @@ function deactivateKey(letter) {
 function processKey(letter) {
     letter = letter.toLowerCase();
 
+    //Already guessed? Skip
+    if (lettersGuessed.includes(letter) || wrongLetters.includes(letter)) {
+        return;
+    }
+
     deactivateKey(letter);
 
     if (secretWord.includes(letter)) {
+        //CORRECT GUESS
         if (!lettersGuessed.includes(letter)) {
             lettersGuessed.push(letter);
         }
+        markButton(letter, true);
         showWord();
+        triggerCorrectAnimation();
+
 
         if (wordIsComplete()) {
             endGame(true);
         }
     } else {
+        //WRONG GUESS
         if (!wrongLetters.includes(letter)) {
             wrongLetters.push(letter);
             livesRemaining--;
         }
-
+        
+        markButton(letter, false);
         document.getElementById("wrong-letters").textContent = wrongLetters.join(", ").toUpperCase();
         livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
+
+        //Update hangman image based on wrong guesses
+        const wrongCount = wrongLetters.length;
+        //Scale to 6 stages
+        const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
+        updateHangmanImage(stage);
+
+        triggerWrongAnimation();
 
         if (livesRemaining === 0) {
             endGame(false);
@@ -363,14 +393,26 @@ document.addEventListener("keydown", function (event) {
         return;
     }
 
-    const regexWord = /^[a-zA-Z]$/;
+    const regexWord = /^[a-zA-ZăâîșțĂÂÎȘȚ]$/;
 
-    if (!regexWord.test(event.key)) {
-        gameMessage.textContent = "se accepta doar litere";
+    //Normalize Romanian diacritics for keyboard input
+    let key = event.key.toLowerCase();
+    const diacriticsMap = {
+        "ă": "a", "â": "a", "î": "i", "ș": "s", "ț": "t"
+    };
+
+
+    if (!regexWord.test(event.key) && !diacriticsMap[key]) {
+        gameMessage.textContent = "Se accepta doar litere";
+        gameMessage.style.color = "red";
         return;
     }
 
     gameMessage.textContent = "";
+    gameMessage.style.color = "orange";
+
+    // For keyboard input, map diacritics to their base letter for matching
+    // (the word may contain diacritics but keyboard is often without)
     processKey(event.key.toUpperCase());
 });
 
@@ -389,6 +431,7 @@ function generateKeyboard() {
         buton.classList.add("letter-btn");
 
         buton.addEventListener("click", function () {
+            if (buton.disabled) return;
             buton.disabled = true;
             processKey(keys[i]);
         });
@@ -405,12 +448,19 @@ startButton.addEventListener("click", function () {
 
     gameSettings.classList.add("hidden");
     gameContainer.classList.remove("hidden");
+
+    // Reset container styles from previous games
+    gameContainer.style.border = "2px solid #3d4453";
+    gameContainer.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.4)";
+    gameContainer.classList.remove("lose-flash", "shake");
+
     showWord();
     generateKeyboard();
 });
 
 restartButton.addEventListener("click", function () {
     gameContainer.classList.add("hidden");
+    gameContainer.classList.remove("lose-flash", "shake");
     gameSettings.classList.remove("hidden");
 });
 

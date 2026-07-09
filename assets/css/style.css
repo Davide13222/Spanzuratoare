@@ -233,6 +233,38 @@ button {
     animation: skull-bounce 0.6s ease-in-out;
 }
 
+/* Game message animations */
+@keyframes flash-message {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.message-flash {
+    animation: flash-message 0.8s ease-in-out 2;
+}
+
+/* Letter button press animation */
+@keyframes btn-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.85); }
+    100% { transform: scale(1); }
+}
+
+.letter-btn:active {
+    animation: btn-pop 0.15s ease-in-out;
+}
+
+/* Wrong letter buttons turn red */ 
+.letter-btn.wrong-guess {
+    background-color: #d97757 !important;
+    color: #1b1f27 !important;
+}
+
+.letter-btn.correct-guess {
+    background-color: #2ecc71 !important;
+    color: #1b1f27 !important;
+}
+
 
 #word-display {
     font-family: 'Courier New', monospace;

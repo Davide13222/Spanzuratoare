@@ -6,6 +6,7 @@ const wordDisplay = document.getElementById("word-display");
 const livesDisplay = document.getElementById("lives-display");
 const letterButtonsContainer = document.getElementById("letter-buttons");
 const gameMessage = document.getElementById("game-message");
+const hangmanImage = document.getElementById("hangman-image");
 
 const difficultySelect = document.getElementById("difficulty");
 const categorySelect = document.getElementById("category");
@@ -17,6 +18,7 @@ let lastRandomWord = "";
 
 let secretWord = "";
 let livesRemaining = 0;
+let maxWrongGuesses = 0;
 let lettersGuessed = [];
 let wrongLetters = [];
 
@@ -91,6 +93,17 @@ function chooseWord() {
     const index = Math.floor(Math.random() * wordsList.length);
     return wordsList[index];
 }
+// Update the hangman image based on the current stage
+function updateHangmanImage(stage) {
+    const totalStages = 6;
+    const currentStage = Math.min(stage, totalStages);
+    hangmanImage.src = "assets/images/" + currentStage + ".svg";
+
+    //Remove and re-add pop class to retrigger animation
+    hangmanImage.classList.remove("hangman-pop");
+    void hangmanImage.offsetWidth; //force reflow
+    hangmanImage.classList.add("hangman-pop");
+}
 
 function initializeGame() {
     const wordValid = validateInputWord();
@@ -148,11 +161,11 @@ function endGame(hasWon) {
     }
 }
 
-function dezactiveazaTasta(litera) {
-    const butoane = letterButtonsContainer.querySelectorAll("button");
-    for (let i = 0; i < butoane.length; i++) {
-        if (butoane[i].textContent.toLowerCase() === litera) {
-            butoane[i].disabled = true;
+function deactivateKey(letter) {
+    const buttons = letterButtonsContainer.querySelectorAll("button");
+    for (let i = 0; i < buttons.length; i++) {
+        if (buttons[i].textContent.toLowerCase() === letter) {
+            buttons[i].disabled = true;
         }
     }
 }
@@ -160,7 +173,7 @@ function dezactiveazaTasta(litera) {
 function processKey(letter) {
     letter = letter.toLowerCase();
 
-    dezactiveazaTasta(letter);
+    deactivateKey(letter);
 
     if (secretWord.includes(letter)) {
         if (!lettersGuessed.includes(letter)) {

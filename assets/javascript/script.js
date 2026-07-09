@@ -209,6 +209,41 @@ function markButton(letter, isCorrect) {
     }
 }
 
+function spawnConfetti() {
+    const colors = ["#e8b84b", "#2ecc71", "#d97757", "#4A90D9", "#FF6B6B", "#FFD700", "#FF69B4", "#00CED1"];
+    const shapes = ["circle", "square"];
+
+    for (let i = 0; i < 80; i++) {
+        const piece = document.createElement("div");
+        piece.classList.add("confetti-piece");
+
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const left = Math.random() * 100;
+        const delay = Math.random() * 2;
+        const size = 8 + Math.random() * 14;
+
+        piece.style.backgroundColor = color;
+        piece.style.left = left + "%";
+        piece.style.width = size + "px";
+        piece.style.height = size + "px";
+        piece.style.animationDelay = delay + "s";
+        piece.style.animationDuration = (2 + Math.random() * 2) + "s";
+
+        if (shapes[Math.floor(Math.random() * shapes.length)] === "circle") {
+            piece.style.borderRadius = "50%";
+        }
+
+        document.body.appendChild(piece);
+
+        //Remove after animation ends
+        setTimeout(function () {
+            if (piece.parentNode) {
+                piece.parentNode.removeChild(piece);
+            }
+        }, 4500);
+    }   
+}
+
 function endGame(hasWon) {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");

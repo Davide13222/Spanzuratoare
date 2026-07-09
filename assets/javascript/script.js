@@ -244,6 +244,24 @@ function spawnConfetti() {
     }   
 }
 
+function triggerWinAnimation() {
+    // Confetti rain
+    spawnConfetti();
+
+    //Hangman image celebration bounce
+    hangmanImage.classList.remove("win-celebration");
+    void hangmanImage.offsetWidth; //force reflow
+    hangmanImage.classList.add("win-celebration");
+
+    //Flash the game container border gold
+    gameContainer.style.border = "3px solid #e8b84b";
+    gameContainer.style.boxShadow = "0 0 30px rgba(232, 184, 75, 0.5)";
+    setTimeout(function(){
+        gameContainer.style.border = "2px solid #3d4453";
+        gameContainer.style.boxShadow = "0 8px 20px rgba(0, 0, 0, 0.4)";
+    }, 2000);
+}
+
 function endGame(hasWon) {
     gameContainer.classList.add("hidden");
     document.querySelector(".game-over").classList.remove("hidden");

@@ -117,10 +117,16 @@ function initializeGame() {
     }
 
     secretWord = wordChosen;
-    livesRemaining = difficultyRules[difficultySelect.value].maxWrongGuesses;
+    maxWrongGuesses = difficultyRules[difficultySelect.value].maxWrongGuesses;
+    livesRemaining = maxWrongGuesses;
     lettersGuessed = [];
     wrongLetters = [];
     livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
+    document.getElementById("wrong-letters").textContent = "";
+    gameMessage.textContent = "";
+
+    //Reset hangman to stage 0
+    updateHangmanImage(0);
 
     return true;
 }

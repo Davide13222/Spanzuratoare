@@ -155,6 +155,7 @@ function wordIsComplete() {
 }
 
 // Animation functions 
+
 function triggerWrongAnimation() {
     // Shake the hangman image with red glow
     hangmanImage.classList.remove("hangman-wrong");
@@ -177,18 +178,6 @@ function triggerWrongAnimation() {
     void gameMessage.offsetWidth; //force reflow
     gameMessage.classList.add("message-flash");
 }
-function endGame(hasWon) {
-    gameContainer.classList.add("hidden");
-    document.querySelector(".game-over").classList.remove("hidden");
-
-    const finalMessage = document.getElementById("final-message");
-
-    if (hasWon) {
-        finalMessage.textContent = "Felicitari, ai castigat! Cuvantul era: " + secretWord;
-    } else {
-        finalMessage.textContent = "Ai pierdut! Cuvantul era: " + secretWord;
-    }
-}
 
 function triggerCorrectAnimation() {
     // Green glow on the word display area
@@ -210,6 +199,29 @@ function triggerCorrectAnimation() {
         gameMessage.style.color = "orange";
     }, 1200);
 }
+
+function markButton(letter, isCorrect) {
+    const buttons = letterButtonsContainer.querySelectorAll("button");
+    for (let i = 0; i < buttons.length; i++) {
+        if (buttons[i].textContent.toLowerCase() === letter.toLowerCase()) {
+            buttons[i].classList.add(isCorrect ? "correct-guess" : "wrong-guess");
+        }
+    }
+}
+
+function endGame(hasWon) {
+    gameContainer.classList.add("hidden");
+    document.querySelector(".game-over").classList.remove("hidden");
+
+    const finalMessage = document.getElementById("final-message");
+
+    if (hasWon) {
+        finalMessage.textContent = "Felicitari, ai castigat! Cuvantul era: " + secretWord;
+    } else {
+        finalMessage.textContent = "Ai pierdut! Cuvantul era: " + secretWord;
+    }
+}
+
 function deactivateKey(letter) {
     const buttons = letterButtonsContainer.querySelectorAll("button");
     for (let i = 0; i < buttons.length; i++) {

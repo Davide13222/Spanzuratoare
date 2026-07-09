@@ -173,6 +173,19 @@ button {
 .letter-correct {
     animation: glow-green 0.6s ease-in-out;
 }
+/* Word display bounce on correct guess */
+@keyframes bounce-word {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.5); }
+    50% { transform: scale(1.25); }
+    75% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+.word-bounce {
+    animation: bounce-word 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+}
 
 #word-display {
     font-family: 'Courier New', monospace;

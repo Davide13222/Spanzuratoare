@@ -41,11 +41,13 @@ difficultySelect.addEventListener("change", function () {
     console.log(settings);
 });
 
+// Check whether the entered word contains only letters, spaces, and hyphens.
 function isWordValid(word) {
     const regex = /^[a-zA-ZăâîșțĂÂÎȘȚ \-]+$/;
     return regex.test(word);
 }
 
+// Check whether the word length matches the selected difficulty rules.
 function checkWordLength(word) {
     const rules = difficultyRules[difficultySelect.value];
     const length = word.length;
@@ -59,6 +61,7 @@ function checkWordLength(word) {
     return "";
 }
 
+// Validate the word entered in the custom input field and save it if it is correct.
 function validateInputWord() {
     const word = inputWord.value.trim();
 
@@ -84,6 +87,7 @@ function validateInputWord() {
     return true;
 }
 
+// Choose a word from the selected category or use the word entered by the player.
 function chooseWord() {
     const category = categorySelect.value;
 
@@ -95,7 +99,8 @@ function chooseWord() {
     const index = Math.floor(Math.random() * wordsList.length);
     return wordsList[index];
 }
-// Update the hangman image based on the current stage
+
+// Update the hangman image based on the current game stage.
 function updateHangmanImage(stage) {
     const totalStages = 6;
     const currentStage = Math.min(stage, totalStages);
@@ -107,6 +112,7 @@ function updateHangmanImage(stage) {
     hangmanImage.classList.add("hangman-pop");
 }
 
+// Initialize the game state and prepare the word, lives, and messages.
 function initializeGame() {
     const wordValid = validateInputWord();
     if (!wordValid) {
@@ -133,6 +139,7 @@ function initializeGame() {
     return true;
 }
 
+// Display the secret word as underscores and guessed letters.
 function showWord() {
     let underScore = "";
     for (let i = 0; i < secretWord.length; i++) {
@@ -147,6 +154,7 @@ function showWord() {
     wordDisplay.innerHTML = underScore;
 }
 
+// Check whether all letters of the word have been guessed.
 function wordIsComplete() {
     for (let i = 0; i < secretWord.length; i++) {
         if (secretWord[i] !== " " && !lettersGuessed.includes(secretWord[i])) {
@@ -155,7 +163,8 @@ function wordIsComplete() {
     }
     return true;
 }
-// Timer function
+
+// Start the timer for hard mode and apply a penalty when time runs out.
 function startTimer() {
     // Only on hard difficulty
     if (difficultySelect.value !== "hard") {
@@ -203,7 +212,7 @@ function startTimer() {
     }, 1000);
 }
 
-// Reset timer function
+// Reset the timer and restart it for the next time round.
 function resetTimer() {
     clearInterval(timerInterval);
     timerSeconds = 30;
@@ -245,18 +254,21 @@ function resetTimer() {
         }, 1000);
     }
 }
-// Stop timer function
+
+// Stop the active timer so it does not continue in the background.
 function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
 }
-// Update timer display
+
+// Update the text that shows the remaining time in the game.
 function updateTimerDisplay() {
     timerDisplay.textContent = "Timp ramas: " + timerSeconds + "s";
 }
 
 // Animation functions 
 
+// Trigger the error animation when the player guesses a letter incorrectly.
 function triggerWrongAnimation() {
     // Shake the hangman image with red glow
     hangmanImage.classList.remove("hangman-wrong");
@@ -280,6 +292,7 @@ function triggerWrongAnimation() {
     gameMessage.classList.add("message-flash");
 }
 
+// Trigger the success animation for a correctly guessed letter.
 function triggerCorrectAnimation() {
     // Green glow on the word display area
     wordDisplay.classList.remove("word-bounce", "letter-correct");
@@ -301,6 +314,7 @@ function triggerCorrectAnimation() {
     }, 1200);
 }
 
+// Mark a letter button as correct or incorrect based on the player's choice.
 function markButton(letter, isCorrect) {
     const buttons = letterButtonsContainer.querySelectorAll("button");
     for (let i = 0; i < buttons.length; i++) {
@@ -310,6 +324,7 @@ function markButton(letter, isCorrect) {
     }
 }
 
+// Generate confetti to animate a win.
 function spawnConfetti() {
     const colors = ["#e8b84b", "#2ecc71", "#d97757", "#4A90D9", "#FF6B6B", "#FFD700", "#FF69B4", "#00CED1"];
     const shapes = ["circle", "square"];
@@ -345,6 +360,7 @@ function spawnConfetti() {
     }   
 }
 
+// Run the special animations at the end of a win.
 function triggerWinAnimation() {
     // Confetti rain
     spawnConfetti();
@@ -363,6 +379,7 @@ function triggerWinAnimation() {
     }, 2000);
 }
 
+// Run the special animations at the end of a loss.
 function triggerLoseAnimation() {
     // Red flash overlay on container
     gameContainer.classList.remove("lose-flash");
@@ -408,6 +425,7 @@ const wompMessages = [
     "Nu-i nimic, mai incearca!",
 ];
 
+// Finish the game and show the end screen with the appropriate result.
 function endGame(hasWon) {
     stopTimer();
 
@@ -434,6 +452,7 @@ function endGame(hasWon) {
     }, 800);
 }
 
+// Disable the letter button after it has been selected once.
 function deactivateKey(letter) {
     const buttons = letterButtonsContainer.querySelectorAll("button");
     for (let i = 0; i < buttons.length; i++) {
@@ -443,6 +462,7 @@ function deactivateKey(letter) {
     }
 }
 
+// Process the player's choice and update the game state.
 function processKey(letter) {
     letter = letter.toLowerCase();
 
@@ -520,6 +540,7 @@ document.addEventListener("keydown", function (event) {
     processKey(event.key.toLowerCase());
 });
 
+// Generate the virtual keyboard with the letters available for the game.
 function generateKeyboard() {
     letterButtonsContainer.innerHTML = "";
      const keys = [

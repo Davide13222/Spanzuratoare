@@ -7,7 +7,7 @@ const livesDisplay = document.getElementById("lives-display");
 const letterButtonsContainer = document.getElementById("letter-buttons");
 const gameMessage = document.getElementById("game-message");
 const hangmanImage = document.getElementById("hangman-image");
-
+const timerDisplay = document.getElementById("timer-display");
 const difficultySelect = document.getElementById("difficulty");
 const categorySelect = document.getElementById("category");
 const inputWord = document.getElementById("input-word");
@@ -22,6 +22,8 @@ let maxWrongGuesses = 0;
 let lettersGuessed = [];
 let wrongLetters = [];
 
+let timerSeconds = 30;
+let timerInterval = null;
 const words = {
     animals: ["pisica", "caine", "elefant", "girafa", "tigru"],
     fruits: ["mar", "para", "banana", "portocala", "cirese"],
@@ -31,12 +33,12 @@ const words = {
 const difficultyRules = {
     easy: { maxLetters: 7, maxWrongGuesses: 10 },
     medium: { minLetters: 7, maxLetters: 10, maxWrongGuesses: 8 },
-    hard: { minLetters: 10, maxWrongGuesses: 6 }
+    hard: { minLetters: 10, maxWrongGuesses: 8 }
 };
 
 difficultySelect.addEventListener("change", function () {
-    const setari = difficultyRules[difficultySelect.value];
-    console.log(setari);
+    const settings = difficultyRules[difficultySelect.value];
+    console.log(settings);
 });
 
 function isWordValid(word) {
@@ -152,6 +154,105 @@ function wordIsComplete() {
         }
     }
     return true;
+}
+// Timer function
+function startTimer() {
+    // Only on hard difficulty
+    if (difficultySelect.value !== "hard") {
+        timerDisplay.classList.add("hidden");
+        return;
+    }
+
+    timerSeconds = 30;
+    timerDisplay.classList.remove("hidden", "timer-urgent");
+    updateTimerDisplay();
+
+    timerInterval = setInterval(function () {
+        timerSeconds--;
+
+        if (timerSeconds <= 10) {
+            timerDisplay.classList.add("timer-urgent");
+        }
+
+        updateTimerDisplay();
+
+        if (timerSeconds <=0) {
+            //Time's up auto penalty 
+            gameMessage.textContent = "Timpul a expirat, pierzi o viata."
+            gameMessage.style.color = "red";
+
+            //Lose life
+            livesRemaining--;
+            livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
+
+            //Advance hangman image
+            const wrongCount = wrongLetters.length + 1;
+            const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
+            updateHangmanImage(stage);
+
+        triggerWrongAnimation();
+        if (livesRemaining <= 0) {
+            stopTimer();
+            endGame(false);
+            return;
+        }
+
+        // Reset timer for next letter
+        resetTimer();
+        }
+    }, 1000);
+}
+
+// Reset timer function
+function resetTimer() {
+    clearInterval(timerInterval);
+    timerSeconds = 30;
+    timerDisplay.classList.remove("timer-urgent");
+    updateTimerDisplay();
+
+    //Restart if still on hard difficulty and game is active
+    if (difficultySelect.value === "hard" && !gameContainer.classList.contains("hidden")) {
+        timerInterval = setInterval(function () {
+            timerSeconds--;
+
+            if (timerSeconds <= 10) {
+                timerDisplay.classList.add("timer-urgent");
+            }
+
+            updateTimerDisplay();
+
+            if (timerSeconds <= 0) {
+                gameMessage.textContent = "Timpul a expirat, pierzi o viata.";
+                gameMessage.style.color = "red";
+
+                livesRemaining--;
+                livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
+
+                const wrongCount = wrongLetters.length + 1;
+                const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
+                updateHangmanImage(stage)
+                triggerWrongAnimation();
+                if (livesRemaining <= 0) {
+                    stopTimer();
+                    endGame(false);
+                    return;
+                }
+
+                resetTimer();
+            }
+        
+
+        }, 1000);
+    }
+}
+// Stop timer function
+function stopTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+}
+// Update timer display
+function updateTimerDisplay() {
+    timerDisplay.textContent = "Timp ramas: " + timerSeconds + "s";
 }
 
 // Animation functions 
@@ -308,6 +409,8 @@ const wompMessages = [
 ];
 
 function endGame(hasWon) {
+    stopTimer();
+
     if (hasWon) {
         triggerWinAnimation();
     } else {
@@ -360,7 +463,9 @@ function processKey(letter) {
         triggerCorrectAnimation();
 
         if (wordIsComplete()) {
+            stopTimer();
             endGame(true);
+            return;
         }
     } else {
         // WRONG GUESS
@@ -368,23 +473,24 @@ function processKey(letter) {
             wrongLetters.push(letter);
             livesRemaining--;
         }
-        
         markButton(letter, false);
         document.getElementById("wrong-letters").textContent = wrongLetters.join(", ").toUpperCase();
         livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
-        // Update hangman image based on wrong guesses
         const wrongCount = wrongLetters.length;
-        // Scale to 6 stages
         const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
         updateHangmanImage(stage);
 
         triggerWrongAnimation();
 
         if (livesRemaining === 0) {
+            stopTimer();
             endGame(false);
+            return;
         }
     }
+
+    resetTimer();
 }
 
 document.addEventListener("keydown", function (event) {
@@ -454,9 +560,11 @@ startButton.addEventListener("click", function () {
 
     showWord();
     generateKeyboard();
+    startTimer();
 });
 
 restartButton.addEventListener("click", function () {
+    stopTimer();
     gameContainer.classList.add("hidden");
     gameContainer.classList.remove("lose-flash", "shake");
     gameSettings.classList.remove("hidden");
@@ -467,11 +575,13 @@ const closeGameButton = document.getElementById("close-game");
 const gameOverScreen = document.querySelector(".game-over");
 
 playAgainButton.addEventListener("click", function () {
+    stopTimer();
     gameOverScreen.classList.add("hidden");
     gameSettings.classList.remove("hidden");
 });
 
 closeGameButton.addEventListener("click", function () {
+    stopTimer();
     gameOverScreen.classList.add("hidden");
     gameContainer.classList.add("hidden");
     gameSettings.classList.remove("hidden");

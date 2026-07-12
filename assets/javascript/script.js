@@ -2,6 +2,7 @@ const startButton = document.getElementById("start-game");
 const gameSettings = document.querySelector(".game-settings");
 const gameContainer = document.querySelector(".game-container");
 const restartButton = document.getElementById("restart-game");
+const hintButton = document.getElementById("hint-button");
 const wordDisplay = document.getElementById("word-display");
 const livesDisplay = document.getElementById("lives-display");
 const letterButtonsContainer = document.getElementById("letter-buttons");
@@ -25,6 +26,7 @@ let wrongLetters = [];
 
 let timerSeconds = 30;
 let timerInterval = null;
+const hintPenalty = 2;
 const words = {
     animals: ["pisica", "caine", "elefant", "girafa", "tigru"],
     fruits: ["mar", "para", "banana", "portocala", "cirese"],
@@ -32,9 +34,9 @@ const words = {
 };
 
 const difficultyRules = {
-    easy: { maxLetters: 7, maxWrongGuesses: 10 },
+    easy: { maxLetters: 6, maxWrongGuesses: 10 },
     medium: { minLetters: 7, maxLetters: 10, maxWrongGuesses: 8 },
-    hard: { minLetters: 10, maxWrongGuesses: 8 }
+    hard: { minLetters: 11, maxWrongGuesses: 8 }
 };
 
 const STORAGE_KEYS = {
@@ -66,6 +68,9 @@ function checkWordLength(word) {
     }
     if (rules.minLetters && length < rules.minLetters) {
         return "Cuvantul are prea putine litere! Minim " + rules.minLetters + ".";
+    }
+     if (rules.maxLetters && length > rules.maxLetters) {
+        return "Cuvantul are prea multe litere! Maxim " + rules.maxLetters + ".";
     }
     return "";
 }
@@ -140,9 +145,23 @@ function chooseWord() {
         return wordSet;
     }
 
-    const wordsList = words[category];
-    const index = Math.floor(Math.random() * wordsList.length);
-    return wordsList[index];
+    const wordsList = words[category] || [];
+    const rules = difficultyRules[difficultySelect.value];
+
+    const validWords = wordsList.filter(function (word) {
+        const length = word.length;
+        const respectsMax = !rules.maxLetters || length <= rules.maxLetters;
+        const respectsMin = !rules.minLetters || length >= rules.minLetters;
+        return respectsMax && respectsMin;
+    });
+
+    if (validWords.length === 0) {
+        errorMessage.textContent = "Nu am gasit cuvant pentru dificultatea aleasa.";
+        return null;
+    }
+
+    const index = Math.floor(Math.random() * validWords.length);
+    return validWords[index] || null;
 }
 
 // Update the hangman image based on the current game stage.
@@ -155,6 +174,15 @@ function updateHangmanImage(stage) {
     hangmanImage.classList.remove("hangman-pop");
     void hangmanImage.offsetWidth; //force reflow
     hangmanImage.classList.add("hangman-pop");
+}
+
+function getHangmanStageFromLosses(losses) {
+    if (!maxWrongGuesses || maxWrongGuesses <= 0) {
+        return 0;
+    }
+
+    const totalLosses = Math.max(0, losses);
+    return Math.min(6, Math.max(0, Math.ceil((totalLosses / maxWrongGuesses) * 6)));
 }
 
 // Initialize the game state and prepare the word, lives, and messages.
@@ -180,6 +208,10 @@ function initializeGame() {
 
     // Reset hangman to stage 0
     updateHangmanImage(0);
+
+    if (hintButton) {
+        hintButton.disabled = false;
+    }
 
     return true;
 }
@@ -240,8 +272,7 @@ function startTimer() {
             livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
             //Advance hangman image
-            const wrongCount = wrongLetters.length + 1;
-            const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
+            const stage = getHangmanStageFromLosses(maxWrongGuesses - livesRemaining);
             updateHangmanImage(stage);
 
         triggerWrongAnimation();
@@ -282,9 +313,8 @@ function resetTimer() {
                 livesRemaining--;
                 livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
-                const wrongCount = wrongLetters.length + 1;
-                const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
-                updateHangmanImage(stage)
+                const stage = getHangmanStageFromLosses(maxWrongGuesses - livesRemaining);
+                updateHangmanImage(stage);
                 triggerWrongAnimation();
                 if (livesRemaining <= 0) {
                     stopTimer();
@@ -554,6 +584,64 @@ async function endGame(hasWon) {
     }, 800);
 }
 
+// Reveal one random available letter as a hint and subtract two lives as a penalty.
+function useHint() {
+    if (!secretWord || livesRemaining <= 0) {
+        return false;
+    }
+
+    if (livesRemaining === 1) {
+        gameMessage.textContent = "Nu ai destule vieti pentru a dezvalui o litera!";
+        gameMessage.style.color = "red";
+        return false;
+    }
+
+    const availableLetters = [];
+    for (let i = 0; i < secretWord.length; i++) {
+        const letter = secretWord[i].toLowerCase();
+        if (letter === " " || lettersGuessed.includes(letter)) {
+            continue;
+        }
+
+        if (!availableLetters.includes(letter)) {
+            availableLetters.push(letter);
+        }
+    }
+
+
+    const randomIndex = Math.floor(Math.random() * availableLetters.length);
+    const revealedLetter = availableLetters[randomIndex];
+
+    lettersGuessed.push(revealedLetter);
+    markButton(revealedLetter, true);
+    showWord();
+
+    livesRemaining -= hintPenalty;
+    livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
+
+    const stage = getHangmanStageFromLosses(maxWrongGuesses - livesRemaining);
+    updateHangmanImage(stage);
+
+    triggerWrongAnimation();
+    gameMessage.textContent = `Hint: litera "${revealedLetter.toUpperCase()}" a fost dezvăluită.`;
+    gameMessage.style.color = "orange";
+
+    if (wordIsComplete()) {
+        stopTimer();
+        endGame(true);
+        return true;
+    }
+
+    if (livesRemaining <= 0) {
+        stopTimer();
+        endGame(false);
+        return true;
+    }
+
+    resetTimer();
+    return true;
+}
+
 // Disable the letter button after it has been selected once.
 function deactivateKey(letter) {
     const buttons = letterButtonsContainer.querySelectorAll("button");
@@ -599,8 +687,7 @@ function processKey(letter) {
         document.getElementById("wrong-letters").textContent = wrongLetters.join(", ").toUpperCase();
         livesDisplay.textContent = "Vieti ramase: " + livesRemaining;
 
-        const wrongCount = wrongLetters.length;
-        const stage = Math.ceil((wrongCount / maxWrongGuesses) * 6);
+        const stage = getHangmanStageFromLosses(maxWrongGuesses - livesRemaining);
         updateHangmanImage(stage);
 
         triggerWrongAnimation();
@@ -666,6 +753,12 @@ function generateKeyboard() {
         letterButtonsContainer.appendChild(buton);
     }
 }
+
+hintButton.addEventListener("click", function () {
+    if (!gameContainer.classList.contains("hidden")) {
+        useHint();
+    }
+});
 
 startButton.addEventListener("click", function () {
     const gameInitialized = initializeGame();

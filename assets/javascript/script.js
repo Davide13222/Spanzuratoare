@@ -425,8 +425,48 @@ const wompMessages = [
     "Nu-i nimic, mai incearca!",
 ];
 
+// Build a link to the Dexonline definition page for the current word.
+function getWordDefinitionLink(word) {
+    if (!word) {
+        return "";
+    }
+
+    const normalizedWord = word.toLowerCase().trim();
+    return `https://dexonline.ro/definitie/${encodeURIComponent(normalizedWord)}`;
+}
+
+// Display a clickable link to the word definition inside the game-over screen.
+function showWordDefinition(link) {
+    const gameOverScreen = document.querySelector(".game-over");
+    const existingDefinition = document.getElementById("word-definition");
+
+    if (existingDefinition) {
+        existingDefinition.remove();
+    }
+
+    if (!link) {
+        return;
+    }
+
+    const definitionElement = document.createElement("a");
+    definitionElement.id = "word-definition";
+    definitionElement.href = link;
+    definitionElement.target = "_blank";
+    definitionElement.rel = "noopener noreferrer";
+    definitionElement.textContent = "Vezi definiția pe Dexonline";
+    definitionElement.style.display = "inline-block";
+    definitionElement.style.marginTop = "12px";
+    definitionElement.style.fontSize = "0.95rem";
+    definitionElement.style.color = "#7dd3fc";
+    definitionElement.style.textDecoration = "none";
+    definitionElement.style.fontWeight = "600";
+    definitionElement.style.lineHeight = "1.5";
+
+    gameOverScreen.appendChild(definitionElement);
+}
+
 // Finish the game and show the end screen with the appropriate result.
-function endGame(hasWon) {
+async function endGame(hasWon) {
     stopTimer();
 
     if (hasWon) {
@@ -435,20 +475,24 @@ function endGame(hasWon) {
         triggerLoseAnimation();
     }
 
+    const definitionLink = getWordDefinitionLink(secretWord);
+
     // Short delay before showing game over screen so animations play
     setTimeout(function () {
-    gameContainer.classList.add("hidden");
-    document.querySelector(".game-over").classList.remove("hidden");
+        gameContainer.classList.add("hidden");
+        document.querySelector(".game-over").classList.remove("hidden");
 
-    const finalMessage = document.getElementById("final-message");
+        const finalMessage = document.getElementById("final-message");
 
-    if (hasWon) {
-        finalMessage.textContent = "Felicitari, ai castigat! Cuvantul era: " + secretWord;
-        finalMessage.style.color = "green";
-    } else {
-        finalMessage.textContent = "Ai pierdut! Cuvantul era: " + secretWord;
-        finalMessage.style.color = "red";
-    }
+        if (hasWon) {
+            finalMessage.textContent = "Felicitari, ai castigat! Cuvantul era: " + secretWord;
+            finalMessage.style.color = "green";
+        } else {
+            finalMessage.textContent = "Ai pierdut! Cuvantul era: " + secretWord;
+            finalMessage.style.color = "red";
+        }
+
+        showWordDefinition(definitionLink);
     }, 800);
 }
 

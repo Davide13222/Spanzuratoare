@@ -40,6 +40,13 @@ h2 {
     padding-bottom: 8px;
 }
 
+.record-display {
+    font-size: 1rem;
+    color: #7dd3fc;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 .hidden {
     display: none;
 }

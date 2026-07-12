@@ -12,6 +12,7 @@ const difficultySelect = document.getElementById("difficulty");
 const categorySelect = document.getElementById("category");
 const inputWord = document.getElementById("input-word");
 const errorMessage = document.getElementById("error-message");
+const recordDisplay = document.getElementById("record-display");
 
 let wordSet = "";
 let lastRandomWord = "";
@@ -35,6 +36,14 @@ const difficultyRules = {
     medium: { minLetters: 7, maxLetters: 10, maxWrongGuesses: 8 },
     hard: { minLetters: 10, maxWrongGuesses: 8 }
 };
+
+const STORAGE_KEYS = {
+    bestStreak: "spanzuratoareBestStreak",
+    currentStreak: "spanzuratoareCurrentStreak",
+};
+
+let bestStreak = 0;
+let currentStreak = 0;
 
 difficultySelect.addEventListener("change", function () {
     const settings = difficultyRules[difficultySelect.value];
@@ -85,6 +94,42 @@ function validateInputWord() {
     errorMessage.textContent = "";
     wordSet = word.toLowerCase();
     return true;
+}
+
+function readNumberFromStorage(key) {
+    try {
+        const rawValue = localStorage.getItem(key);
+        return rawValue === null ? 0 : parseInt(rawValue, 10) || 0;
+    } catch (error) {
+        return 0;
+    }
+}
+
+function writeNumberToStorage(key, value) {
+    try {
+        localStorage.setItem(key, String(value));
+    } catch (error) {
+        // ignore storage failures in browsers that block localStorage
+    }
+}
+
+function updateRecordDisplay() {
+    if (!recordDisplay) {
+        return;
+    }
+
+    recordDisplay.textContent = `Record curent: ${bestStreak} victorii consecutive`;
+}
+
+function loadRecord() {
+    bestStreak = readNumberFromStorage(STORAGE_KEYS.bestStreak);
+    currentStreak = readNumberFromStorage(STORAGE_KEYS.currentStreak);
+    updateRecordDisplay();
+}
+
+function saveRecord() {
+    writeNumberToStorage(STORAGE_KEYS.bestStreak, bestStreak);
+    writeNumberToStorage(STORAGE_KEYS.currentStreak, currentStreak);
 }
 
 // Choose a word from the selected category or use the word entered by the player.
@@ -416,6 +461,7 @@ function triggerLoseAnimation() {
 
 }
 
+
 const wompMessages = [
     "Womp womp...",
     "Ai pierdut!",
@@ -468,6 +514,18 @@ function showWordDefinition(link) {
 // Finish the game and show the end screen with the appropriate result.
 async function endGame(hasWon) {
     stopTimer();
+
+    if (hasWon) {
+        currentStreak += 1;
+        if (currentStreak > bestStreak) {
+            bestStreak = currentStreak;
+        }
+    } else {
+        currentStreak = 0;
+    }
+
+    saveRecord();
+    updateRecordDisplay();
 
     if (hasWon) {
         triggerWinAnimation();
@@ -651,3 +709,5 @@ closeGameButton.addEventListener("click", function () {
     gameContainer.classList.add("hidden");
     gameSettings.classList.remove("hidden");
 });
+
+loadRecord();
